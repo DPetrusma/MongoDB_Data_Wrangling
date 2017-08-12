@@ -1,0 +1,372 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 5.2.6.2 (Windows)"/>
+	<meta name="created" content="2017-03-02T08:13:42.315000000"/>
+	<meta name="changed" content="2017-03-13T19:28:52.326000000"/>
+	<style type="text/css">
+		@page { margin: 2cm }
+		p { margin-bottom: 0.25cm; line-height: 120% }
+		a:link { so-language: zxx }
+	</style>
+</head>
+<body lang="en-AU" dir="ltr">
+<p style="margin-bottom: 0cm; line-height: 100%">OpenStreetMap
+Project</p>
+<p style="margin-bottom: 0cm; line-height: 100%">Data Wrangling with
+MongoDB</p>
+<p style="margin-bottom: 0cm; line-height: 100%">Dylan Petrusma</p>
+<p style="margin-bottom: 0cm; line-height: 100%"><br/>
+
+</p>
+<p style="margin-bottom: 0cm; line-height: 100%">Map Area: Brisbane,
+QLD, Australia</p>
+<p style="margin-bottom: 0cm; line-height: 100%"><br/>
+
+</p>
+<p style="margin-bottom: 0cm; line-height: 100%"><a href="https://mapzen.com/data/metro-extracts/metro/brisbane_australia/"><span lang="en-AU">https://mapzen.com/data/metro-extracts/metro/brisbane_australia/</span></a></p>
+<p style="margin-bottom: 0cm; line-height: 100%"><br/>
+
+</p>
+<ol>
+	<li/>
+<p style="margin-bottom: 0cm; line-height: 100%">Problems
+	Encountered in the Map</p>
+	<li/>
+<p style="margin-bottom: 0cm; line-height: 100%">Data Overview</p>
+	<li/>
+<p style="margin-bottom: 0cm; line-height: 100%">Additional
+	Ideas</p>
+</ol>
+<p style="margin-bottom: 0cm; line-height: 100%"><br/>
+
+</p>
+<p style="margin-bottom: 0cm; line-height: 100%"><b>Problems
+Encountered in the Map</b></p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+Using the provided code, I took a sample of the data set by using
+every 50<sup>th</sup> element and ran some simple checks. The first
+problem I found was the (expected) street type errors. However, there
+were only about half-a-dozen, and so the list of corrections was
+quite short. These can be seen on lines  32 &ndash; 38 in
+&ldquo;Cleaning_OSM_Data_Project.py&rdquo;. There is a potential
+issue with street names ending in a cardinal direction, e.g.,
+&ldquo;Brisbane Road North&rdquo;, and these could have been treated
+as having a street type of &ldquo;Road&rdquo;, but I decided to keep
+them as they were. Some more complicated Regular expressions could be
+used to handle these if I wanted to change them later.</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+The other significant issue was that of potentially multi-valued
+fields. After looking through the sample by eye, I saw many fields
+containing semi-colons and commas that seemed to denote multi-valued
+fields. For example, &ldquo;japanese,korean&rdquo; for cuisine, or
+&ldquo;459;460&rdquo; for &ldquo;route_ref&rdquo;. Whilst there are
+probably some fields legitimately containing those characters as part
+of the text, a vast majority seemed to be multi-valued, and so I
+split those values up by commas and semi-colons, turning them into
+lists, as seen on lines 139 &ndash; 146. To check these fields, I
+wrote the function &ldquo;generic_aggregate&rdquo; to accept a field
+name to then group by that field to display easily. I then ran my eye
+over the results to look for problem characters in a few expected
+places, such as cuisine, source, route_ref, address.postcode, and
+maxspeed</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+There were a couple of other small issues I noticed. A small number
+of nodes had a tag with a k-value of &ldquo;type&rdquo;, meaning that
+node&rsquo;s &ldquo;type&rdquo; attribute was changed from &ldquo;node&rdquo;
+(in this case, to &ldquo;water&rdquo;). For these nodes, and any
+others that might have cropped up, I renamed the k-value of &ldquo;type&rdquo;
+to &ldquo;type_secondary&rdquo;, as seen in lines 131 &ndash; 134.</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+After checking a few other fields by eye, I also found a postcode
+that included a space, &ldquo;4051 &ldquo;. To handle this postcode
+field, I included a regular expression check to find field values
+containing exactly 4 digits and some whitespace, then removing the
+spaces in those values, as seen in the regex on line 15 and the check
+on line 138. I realise that for much larger datasets, this scan by
+eye is not feasible, and so a more automated check in included on
+lines 185 &ndash; 189 in &ldquo;All_Data_Queries_Project.py&rdquo;.
+Since I know that postcode in Australia must be 4 digits long, this
+check prints all documents with a postcode that is not exactly 4
+numeric characters.</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; line-height: 100%; text-decoration: none">
+<b>Data Overview</b></p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>File sizes</i></p>
+<ul>
+	<li/>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+	brisbane_australia.osm	239 MB</p>
+	<li/>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+	brisbane_australia.json	361 MB</p>
+</ul>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Number of Documents</i></p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>&gt; </i><span style="font-style: normal">db.Brisbane.find().count()</span></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	1,232,958</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Number of Nodes</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; db.Brisbane.find( { &ldquo;type&rdquo; : &ldquo;node&rdquo; }
+).count()</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	155,159</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Number of Ways</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; db.Brisbane.find( { &ldquo;type&rdquo; : &ldquo;way&rdquo; }
+).count()</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	1,077,799</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Number of Unique Users</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; len(db.brisbane.distinct(&quot;created.user&quot;))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	1,292</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Top Contributing User</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db, generic_aggregate(&quot;created.user&quot;,
+False, 1, -1)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	{u'_id': u'nearmop', u'count': 155491}</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Top Source (excluding &ldquo;None&rdquo;)</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db, generic_aggregate(&quot;source&quot;,
+False, 1, -1)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	{u'_id': u'nearmap', u'count': 10826}</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Five Most Common Amenities</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db, generic_aggregate(&quot;amenity&quot;,
+False, 5, -1)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	[{u'_id': u'parking', u'count': 2871},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+ 	{u'_id': u'bench', u'count': 1130},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	{u'_id': u'drinking_water', u'count': 1042},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	{u'_id': u'shelter', u'count': 844},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	{u'_id': u'fast_food', u'count': 571}]</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+Parking makes sense, but I am surprised that so many people have
+marked benches in the map</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Top 3 Most Popular Cuisines</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db, generic_aggregate(&quot;cuisine&quot;,
+False, 3, -1)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	[{u'_id': u'burger', u'count': 82},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+ 	{u'_id': u'coffee_shop', u'count': 70},</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+ 	{u'_id': u'pizza', u'count': 69}]</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>For nodes on a bus route, what percentage are on multiple routes</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt;      [</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        { &quot;$match&quot; : { &quot;route_ref&quot; : { &quot;$exists&quot;
+: True } } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        { &quot;$project&quot; : { &quot;_id&quot; : &quot;$_id&quot;,
+&quot;route_ref_type&quot; : { &quot;$type&quot; : &quot;$route_ref&quot;
+} } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        { &quot;$group&quot; : {</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    &quot;_id&quot; : &quot;route_ref_type&quot;,</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    &quot;one_route&quot; :</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    #All the routes that are of type string, meaning
+only one value in this case</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                        { &quot;$sum&quot; : { &quot;$cond&quot; : [
+{&quot;$eq&quot; : [&quot;$route_ref_type&quot;, &quot;string&quot;]},
+1, 0] } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    &quot;many_route&quot; :</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    #All the routes that are not strings, i.e., they
+are arrays</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                        { &quot;$sum&quot; : { &quot;$cond&quot; : [
+{&quot;$ne&quot; : [&quot;$route_ref_type&quot;, &quot;string&quot;]},
+1, 0] } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    &quot;total_routes&quot; :</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                        { &quot;$sum&quot; : 1 }</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+                    }</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        { &quot;$project&quot; : { &quot;_id&quot; : 1,
+&quot;ratio_with_many_routes&quot; : { &quot;$divide&quot; : [
+&quot;$many_route&quot;, &quot;$total_routes&quot; ] } } }</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+        ]</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	[{u'_id': u'route_ref_type', u'ratio_with_many_routes':
+0.555871661134819}]<br/>
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>For nodes on multiple bus routes, what is the average number of
+routes they are on</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt;[</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+  { &quot;$match&quot; : { &quot;route_ref.0&quot; : { &quot;$exists&quot;
+: True } } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+  { &quot;$project&quot; : { &quot;_id&quot; : &quot;$_id&quot;,
+&quot;route_ref&quot; : &quot;$route_ref&quot;, &quot;number_routes&quot;
+: { &quot;$size&quot; : &quot;$route_ref&quot; } } },</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+  { &quot;$group&quot; : { &quot;_id&quot; : 1,
+&quot;average_number_of_routes&quot; : { &quot;$avg&quot; :
+&quot;$number_routes&quot; } } }</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+  ]</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+	[{u'_id': 1, u'average_number_of_routes': 3.5299971566676143}]</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-weight: normal; line-height: 100%; text-decoration: none">
+<i>Some fields that still contain problem characters</i></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db,
+find_problem_characters_in_value(&quot;cuisine&quot;)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db,
+find_problem_characters_in_value(&quot;denomination&quot;)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+&gt; pp.pprint(print_aggregate(db,
+find_problem_characters_in_value(&quot;amenity&quot;)))</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+These all returned no values, which is good in this case</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; line-height: 100%; text-decoration: none">
+<b>Additional Ideas</b></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+The biggest problem seems to be with inconsistent rules for
+multi-valued fields. Some have commas, some have semi-colons, and I&rsquo;m
+sure there are others, though perhaps not in this dataset (as seen by
+the empty &ldquo;problem character&rdquo; queries above). It is
+likely that I have accidentally split a field that legitimately
+includes commas or semi-colons into an array &ndash; perhaps the name
+of a restaurant contains a comma.</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+If it is possible, perhaps there could be some auto-checks in
+OpenStreetMaps &ndash; if you enter data with a semi-colon or comma,
+you are asked whether this is multi-value field, and directed to use
+a single accepted character. I think that the pipe character &ldquo;|&rdquo;
+would work well as it is unlikely to appear as part of a legitimate
+expression.</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+I see two potential problems. One is that this sort of message might
+be popping up a lot for certain location or node types, and so it
+could discourage users a little from contributing, or some users may
+simply ignore the message, gaining us nothing. The other issue is
+that it might be rather difficult to implement in OpenStreetMaps. I&rsquo;m
+not sure of the code behind the field validation that would need to
+be included, but it could reduce performance.</p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+<br/>
+
+</p>
+<p style="margin-bottom: 0cm; font-style: normal; line-height: 100%; text-decoration: none">
+<b>Conclusion</b></p>
+<p style="margin-bottom: 0cm; font-style: normal; font-weight: normal; line-height: 100%; text-decoration: none">
+This dataset was surprisingly (at least to me) clean, with few street
+names incorrect and not so many problem characters in the fields that
+I checked. Since the most common source is NearMaps, it seems that
+many users are taking care to include as much detail as possible,
+thus there would only be a few tweaks required to make this set even
+more user-friendly.</p>
+</body>
+</html>

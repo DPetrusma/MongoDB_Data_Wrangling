@@ -1,0 +1,4 @@
+http://stackoverflow.com/questions/22819303/mongodb-aggregation-divide-computed-fields
+http://stackoverflow.com/questions/14102596/conditional-sum-in-mongodb
+http://stackoverflow.com/questions/11782566/mongodb-select-countdistinct-x-on-an-indexed-column-count-unique-results-for
+https://docs.mongodb.com/manual/reference/operator/query/

@@ -1,0 +1,4 @@
+https://mapzen.com/data/metro-extracts/metro/brisbane_australia/
+This is where I was born, the capital city of the state of Queensland in Australia. The map encompasses the greater Brisbane area - from Caboolture to the North, Ipswich to the South-West, and Logan to the South-East.
+
+I chose it mostly due to familiarity - I knew some of the things to look out for in amenity types, for example, and I would quickly be able to recognise erroneous street name types.
